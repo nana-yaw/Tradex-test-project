@@ -56,7 +56,18 @@ const TickerBar = () => {
 
   return (
     <>
-      <div className="w-full bg-card/80 backdrop-blur-sm border-b border-border overflow-hidden">
+      <div className="w-full bg-card/80 backdrop-blur-sm border-b border-border overflow-hidden relative">
+        <div
+          className="absolute right-2 top-1/2 -translate-y-1/2 z-10 flex items-center gap-1.5"
+          title={wsConnected ? 'Live (WebSocket)' : 'Polling (REST)'}
+        >
+          <span
+            className={`block w-2 h-2 rounded-full ${wsConnected ? 'bg-green-500 animate-pulse' : 'bg-yellow-500'}`}
+          />
+          <span className="text-[10px] text-muted-foreground hidden sm:inline">
+            {wsConnected ? 'Live' : 'Polling'}
+          </span>
+        </div>
         <div
           ref={tickerRef}
           className="flex animate-scroll"
