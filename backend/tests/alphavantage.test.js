@@ -10,7 +10,7 @@ describe('Alpha Vantage Provider', () => {
     jest.restoreAllMocks();
   });
 
-  it('should return transformed traditional asset prices', async () => {
+  it('should return raw API data with asset metadata', async () => {
     const mockGlobalQuote = (symbol, price, changePercent) => ({
       'Global Quote': {
         '01. symbol': symbol,
@@ -47,20 +47,17 @@ describe('Alpha Vantage Provider', () => {
     expect(result[0]).toEqual({
       symbol: 'S&P 500',
       name: 'S&P 500',
-      price: 520.45,
-      change24h: 0.85,
+      raw: { '01. symbol': 'SPY', '05. price': '520.45', '10. change percent': '0.85%' },
     });
     expect(result[1]).toEqual({
       symbol: 'Gold',
       name: 'Gold',
-      price: 2340.50,
-      change24h: 1.20,
+      raw: { '01. symbol': 'GLD', '05. price': '2340.50', '10. change percent': '1.20%' },
     });
     expect(result[2]).toEqual({
       symbol: 'EUR/USD',
       name: 'EUR/USD',
-      price: 1.0845,
-      change24h: 0,
+      raw: { '5. Exchange Rate': '1.0845', '9. Last Refreshed': '2024-01-15' },
     });
   });
 

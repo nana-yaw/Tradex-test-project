@@ -1,7 +1,7 @@
 const { getOrFetch } = require('./cache');
 const { fetchPrices, fetchChart } = require('./providers/coingecko');
 const { fetchTraditionalPrices } = require('./providers/alphavantage');
-const { transformPrices } = require('../transforms/marketTransform');
+const { transformPrices, transformTraditionalPrices } = require('../transforms/marketTransform');
 
 const TTL = 30000;
 const TRADITIONAL_TTL = 300000; // 5 min — Alpha Vantage free tier: 25 req/day
@@ -13,8 +13,9 @@ async function getPrices() {
   ]);
 
   const crypto = raw ? transformPrices(raw) : [];
+  const traditionalAssets = traditional ? transformTraditionalPrices(traditional) : [];
 
-  return [...crypto, ...(traditional || [])];
+  return [...crypto, ...traditionalAssets];
 }
 
 async function getChart(coinId) {

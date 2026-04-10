@@ -19,4 +19,22 @@ function transformPrices(rawResponse) {
     }));
 }
 
-module.exports = { transformPrices, COIN_MAP };
+function transformTraditionalPrices(rawAssets) {
+  return rawAssets.map((asset) => {
+    if (!asset?.raw) return { symbol: asset.symbol, name: asset.name, price: 0, change24h: 0 };
+    const isQuote = !!asset.raw['05. price'];
+
+    return {
+      symbol: asset.symbol,
+      name: asset.name,
+      price: isQuote
+        ? parseFloat(asset.raw['05. price'])
+        : parseFloat(asset.raw['5. Exchange Rate']),
+      change24h: isQuote
+        ? Math.round((parseFloat(asset.raw['10. change percent']) || 0) * 100) / 100
+        : 0,
+    };
+  });
+}
+
+module.exports = { transformPrices, transformTraditionalPrices, COIN_MAP };

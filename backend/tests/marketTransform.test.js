@@ -1,4 +1,4 @@
-const { transformPrices } = require('../src/transforms/marketTransform');
+const { transformPrices, transformTraditionalPrices } = require('../src/transforms/marketTransform');
 
 describe('transformPrices', () => {
   it('should transform raw CoinGecko response into ticker DTOs', () => {
@@ -53,5 +53,56 @@ describe('transformPrices', () => {
     const result = transformPrices({});
 
     expect(result).toEqual([]);
+  });
+});
+
+describe('transformTraditionalPrices', () => {
+  it('should transform stock quote raw data into ticker DTOs', () => {
+    const rawAssets = [
+      { symbol: 'S&P 500', name: 'S&P 500', raw: { '01. symbol': 'SPY', '05. price': '520.45', '10. change percent': '0.85%' } },
+    ];
+
+    const result = transformTraditionalPrices(rawAssets);
+
+    expect(result).toEqual([
+      { symbol: 'S&P 500', name: 'S&P 500', price: 520.45, change24h: 0.85 },
+    ]);
+  });
+
+  it('should transform currency exchange rate raw data into ticker DTOs', () => {
+    const rawAssets = [
+      { symbol: 'EUR/USD', name: 'EUR/USD', raw: { '5. Exchange Rate': '1.0845', '9. Last Refreshed': '2024-01-15' } },
+    ];
+
+    const result = transformTraditionalPrices(rawAssets);
+
+    expect(result).toEqual([
+      { symbol: 'EUR/USD', name: 'EUR/USD', price: 1.0845, change24h: 0 },
+    ]);
+  });
+
+  it('should default change24h to 0 when change percent is absent', () => {
+    const rawAssets = [
+      { symbol: 'S&P 500', name: 'S&P 500', raw: { '01. symbol': 'SPY', '05. price': '520.45' } },
+    ];
+
+    const result = transformTraditionalPrices(rawAssets);
+
+    expect(result[0].change24h).toBe(0);
+  });
+
+  it('should handle mixed quote and currency rate data', () => {
+    const rawAssets = [
+      { symbol: 'S&P 500', name: 'S&P 500', raw: { '01. symbol': 'SPY', '05. price': '520.45', '10. change percent': '0.85%' } },
+      { symbol: 'Gold', name: 'Gold', raw: { '01. symbol': 'GLD', '05. price': '2340.50', '10. change percent': '1.20%' } },
+      { symbol: 'EUR/USD', name: 'EUR/USD', raw: { '5. Exchange Rate': '1.0845', '9. Last Refreshed': '2024-01-15' } },
+    ];
+
+    const result = transformTraditionalPrices(rawAssets);
+
+    expect(result).toHaveLength(3);
+    expect(result[0].price).toBe(520.45);
+    expect(result[1].price).toBe(2340.50);
+    expect(result[2].price).toBe(1.0845);
   });
 });

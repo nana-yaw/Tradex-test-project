@@ -19,13 +19,13 @@ describe('Market Service', () => {
         ethereum: { usd: 3521.45, usd_24h_change: -1.237 },
       };
 
-      const traditionalPrices = [
-        { symbol: 'S&P 500', name: 'S&P 500', price: 520.45, change24h: 0.85 },
+      const rawTraditional = [
+        { symbol: 'S&P 500', name: 'S&P 500', raw: { '01. symbol': 'SPY', '05. price': '520.45', '10. change percent': '0.85%' } },
       ];
 
       cache.getOrFetch.mockImplementation(async (key, fetchFn) => fetchFn());
       coingecko.fetchPrices.mockResolvedValue(rawPrices);
-      alphavantage.fetchTraditionalPrices.mockResolvedValue(traditionalPrices);
+      alphavantage.fetchTraditionalPrices.mockResolvedValue(rawTraditional);
 
       const result = await getPrices();
 
@@ -70,13 +70,13 @@ describe('Market Service', () => {
     });
 
     it('should return only traditional when crypto fails', async () => {
-      const traditionalPrices = [
-        { symbol: 'Gold', name: 'Gold', price: 2340.50, change24h: 0 },
+      const rawTraditional = [
+        { symbol: 'Gold', name: 'Gold', raw: { '01. symbol': 'GLD', '05. price': '2340.50', '10. change percent': '0.00%' } },
       ];
 
       cache.getOrFetch
         .mockResolvedValueOnce(null)
-        .mockResolvedValueOnce(traditionalPrices);
+        .mockResolvedValueOnce(rawTraditional);
 
       const result = await getPrices();
 

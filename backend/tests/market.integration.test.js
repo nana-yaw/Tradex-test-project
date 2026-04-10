@@ -23,7 +23,7 @@ describe('Market API Integration', () => {
         ethereum: { usd: 3521.45, usd_24h_change: -1.237 },
       });
       alphavantage.fetchTraditionalPrices.mockResolvedValue([
-        { symbol: 'S&P 500', name: 'S&P 500', price: 520.45, change24h: 0.85 },
+        { symbol: 'S&P 500', name: 'S&P 500', raw: { '01. symbol': 'SPY', '05. price': '520.45', '10. change percent': '0.85%' } },
       ]);
 
       const res = await request(app).get('/api/market/prices');

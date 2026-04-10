@@ -11,10 +11,7 @@ async function fetchQuote(symbol) {
     const quote = data['Global Quote'];
     if (!quote || !quote['05. price']) return null;
 
-    return {
-      price: parseFloat(quote['05. price']),
-      change24h: parseFloat(quote['10. change percent']?.replace('%', '')) || 0,
-    };
+    return quote;
   } catch {
     return null;
   }
@@ -30,10 +27,7 @@ async function fetchCurrencyRate(fromCurrency, toCurrency) {
     const rate = data['Realtime Currency Exchange Rate'];
     if (!rate || !rate['5. Exchange Rate']) return null;
 
-    return {
-      price: parseFloat(rate['5. Exchange Rate']),
-      change24h: 0,
-    };
+    return rate;
   } catch {
     return null;
   }
@@ -51,7 +45,7 @@ async function fetchTraditionalPrices() {
   const results = [];
 
   for (const asset of assets) {
-    const data = await asset.fetch();
+    const data = await asset.fetch().catch(() => null);
     results.push(data);
     if (asset !== assets[assets.length - 1]) await delay(1500);
   }
@@ -63,8 +57,7 @@ async function fetchTraditionalPrices() {
       return {
         symbol: asset.symbol,
         name: asset.name,
-        price: results[i].price,
-        change24h: Math.round(results[i].change24h * 100) / 100,
+        raw: results[i],
       };
     })
     .filter(Boolean);
