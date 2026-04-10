@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
+import TickerBar from '@/components/TickerBar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { TrendingUp, Users, Target, Award, Activity, BarChart3, Zap, TrendingDown, ArrowRight, Sparkles, Rocket, Crown } from 'lucide-react';
@@ -58,6 +59,7 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
+      <TickerBar />
       <div className="container mx-auto px-4 py-8">
         {/* New Strategies Advertisement */}
         <div className="mb-8 relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-600 p-1">

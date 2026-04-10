@@ -68,6 +68,19 @@ export const api = {
     return response.json();
   },
 
+  // Market
+  async getMarketPrices() {
+    const response = await fetch(`${API_BASE_URL}/market/prices`);
+    if (!response.ok) throw new Error('Failed to fetch market prices');
+    return response.json();
+  },
+
+  async getMarketChart(coinId: string) {
+    const response = await fetch(`${API_BASE_URL}/market/chart/${coinId}`);
+    if (!response.ok) throw new Error('Failed to fetch chart data');
+    return response.json();
+  },
+
   async createDiscussion(token: string, data: any) {
     const response = await fetch(`${API_BASE_URL}/discussions`, {
       method: 'POST',
