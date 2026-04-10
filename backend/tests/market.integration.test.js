@@ -1,9 +1,11 @@
 const request = require('supertest');
 const app = require('../src/app');
 const coingecko = require('../src/services/providers/coingecko');
+const alphavantage = require('../src/services/providers/alphavantage');
 const { clear } = require('../src/services/cache');
 
 jest.mock('../src/services/providers/coingecko');
+jest.mock('../src/services/providers/alphavantage');
 
 describe('Market API Integration', () => {
   beforeEach(() => {
@@ -20,6 +22,9 @@ describe('Market API Integration', () => {
         bitcoin: { usd: 67432.12, usd_24h_change: 2.345 },
         ethereum: { usd: 3521.45, usd_24h_change: -1.237 },
       });
+      alphavantage.fetchTraditionalPrices.mockResolvedValue([
+        { symbol: 'S&P 500', name: 'S&P 500', price: 520.45, change24h: 0.85 },
+      ]);
 
       const res = await request(app).get('/api/market/prices');
 
@@ -27,11 +32,13 @@ describe('Market API Integration', () => {
       expect(res.body).toEqual([
         { symbol: 'BTC', name: 'Bitcoin', price: 67432.12, change24h: 2.35 },
         { symbol: 'ETH', name: 'Ethereum', price: 3521.45, change24h: -1.24 },
+        { symbol: 'S&P 500', name: 'S&P 500', price: 520.45, change24h: 0.85 },
       ]);
     });
 
     it('should return 503 when provider fails and no cache exists', async () => {
       coingecko.fetchPrices.mockResolvedValue(null);
+      alphavantage.fetchTraditionalPrices.mockResolvedValue(null);
 
       const res = await request(app).get('/api/market/prices');
 

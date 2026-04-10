@@ -1,7 +1,12 @@
 const { fetchTraditionalPrices } = require('../src/services/providers/alphavantage');
 
 describe('Alpha Vantage Provider', () => {
+  beforeEach(() => {
+    jest.useFakeTimers();
+  });
+
   afterEach(() => {
+    jest.useRealTimers();
     jest.restoreAllMocks();
   });
 
@@ -22,12 +27,7 @@ describe('Alpha Vantage Provider', () => {
       })
       .mockResolvedValueOnce({
         ok: true,
-        json: async () => ({
-          'Realtime Currency Exchange Rate': {
-            '5. Exchange Rate': '2340.50',
-            '9. Last Refreshed': '2024-01-15',
-          },
-        }),
+        json: async () => mockGlobalQuote('GLD', '2340.50', '1.20%'),
       })
       .mockResolvedValueOnce({
         ok: true,
@@ -39,7 +39,9 @@ describe('Alpha Vantage Provider', () => {
         }),
       });
 
-    const result = await fetchTraditionalPrices();
+    const resultPromise = fetchTraditionalPrices();
+    await jest.advanceTimersByTimeAsync(5000);
+    const result = await resultPromise;
 
     expect(result).toHaveLength(3);
     expect(result[0]).toEqual({
@@ -52,7 +54,7 @@ describe('Alpha Vantage Provider', () => {
       symbol: 'Gold',
       name: 'Gold',
       price: 2340.50,
-      change24h: 0,
+      change24h: 1.20,
     });
     expect(result[2]).toEqual({
       symbol: 'EUR/USD',
@@ -65,7 +67,9 @@ describe('Alpha Vantage Provider', () => {
   it('should return empty array when all requests fail', async () => {
     jest.spyOn(global, 'fetch').mockRejectedValue(new Error('Network error'));
 
-    const result = await fetchTraditionalPrices();
+    const resultPromise = fetchTraditionalPrices();
+    await jest.advanceTimersByTimeAsync(5000);
+    const result = await resultPromise;
 
     expect(result).toEqual([]);
   });
@@ -86,7 +90,9 @@ describe('Alpha Vantage Provider', () => {
       .mockResolvedValueOnce({ ok: false, status: 429 })
       .mockResolvedValueOnce({ ok: false, status: 429 });
 
-    const result = await fetchTraditionalPrices();
+    const resultPromise = fetchTraditionalPrices();
+    await jest.advanceTimersByTimeAsync(5000);
+    const result = await resultPromise;
 
     expect(result).toHaveLength(1);
     expect(result[0].symbol).toBe('S&P 500');

@@ -39,25 +39,32 @@ async function fetchCurrencyRate(fromCurrency, toCurrency) {
   }
 }
 
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 async function fetchTraditionalPrices() {
   const assets = [
     { symbol: 'S&P 500', name: 'S&P 500', fetch: () => fetchQuote('SPY') },
-    { symbol: 'Gold', name: 'Gold', fetch: () => fetchCurrencyRate('XAU', 'USD') },
+    { symbol: 'Gold', name: 'Gold', fetch: () => fetchQuote('GLD') },
     { symbol: 'EUR/USD', name: 'EUR/USD', fetch: () => fetchCurrencyRate('EUR', 'USD') },
   ];
 
-  const results = await Promise.allSettled(assets.map((a) => a.fetch()));
+  const results = [];
+
+  for (const asset of assets) {
+    const data = await asset.fetch();
+    results.push(data);
+    if (asset !== assets[assets.length - 1]) await delay(1500);
+  }
 
   return assets
     .map((asset, i) => {
-      const result = results[i];
-      if (result.status !== 'fulfilled' || !result.value) return null;
+      if (!results[i]) return null;
 
       return {
         symbol: asset.symbol,
         name: asset.name,
-        price: result.value.price,
-        change24h: Math.round(result.value.change24h * 100) / 100,
+        price: results[i].price,
+        change24h: Math.round(results[i].change24h * 100) / 100,
       };
     })
     .filter(Boolean);
