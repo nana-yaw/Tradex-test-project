@@ -4,8 +4,8 @@ import Header from '@/components/Header';
 import TickerBar from '@/components/TickerBar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { TrendingUp, Users, Target, Award, Activity, BarChart3, Zap, TrendingDown, ArrowRight, Sparkles, Rocket, Crown } from 'lucide-react';
-import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { TrendingUp, Target, Award, Activity, BarChart3, Zap, TrendingDown, ArrowRight, Sparkles, Rocket, Crown } from 'lucide-react';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const Dashboard = () => {
   const [user, setUser] = useState<any>(null);
