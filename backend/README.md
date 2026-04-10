@@ -6,7 +6,7 @@ Express backend with JWT authentication and Supabase database.
 
 1. **Install dependencies:**
    ```bash
-   cd server
+   cd backend
    npm install
    ```
 
