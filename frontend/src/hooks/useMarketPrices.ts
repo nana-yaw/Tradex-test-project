@@ -8,11 +8,11 @@ export interface TickerItem {
   change24h: number;
 }
 
-export function useMarketPrices() {
+export function useMarketPrices(wsConnected = false) {
   return useQuery<TickerItem[]>({
     queryKey: ['marketPrices'],
     queryFn: () => api.getMarketPrices(),
-    refetchInterval: 30000,
+    refetchInterval: wsConnected ? false : 30000,
     staleTime: 25000,
   });
 }

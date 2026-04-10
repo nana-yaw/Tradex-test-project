@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 import { useMarketPrices, useMarketChart } from '@/hooks/useMarketPrices';
+import { useMarketSocket } from '@/hooks/useMarketSocket';
 import { AreaChart, Area, ResponsiveContainer, YAxis } from 'recharts';
 
 const SYMBOL_TO_COIN_ID: Record<string, string> = {
@@ -12,7 +13,8 @@ const SYMBOL_TO_COIN_ID: Record<string, string> = {
 };
 
 const TickerBar = () => {
-  const { data: prices, isLoading } = useMarketPrices();
+  const wsConnected = useMarketSocket();
+  const { data: prices, isLoading } = useMarketPrices(wsConnected);
   const [hoveredCoin, setHoveredCoin] = useState<string | null>(null);
   const [popupPosition, setPopupPosition] = useState({ x: 0, y: 0 });
   const tickerRef = useRef<HTMLDivElement>(null);
