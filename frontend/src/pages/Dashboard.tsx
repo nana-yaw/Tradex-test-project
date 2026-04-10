@@ -59,7 +59,6 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <TickerBar />
       <div className="container mx-auto px-4 py-8">
         {/* New Strategies Advertisement */}
         <div className="mb-8 relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-600 p-1">
@@ -119,7 +118,9 @@ const Dashboard = () => {
           </div>
         </div>
         
-        <div className="mb-8">
+        <TickerBar />
+
+        <div className="mb-8 mt-6">
           <h1 className="text-4xl font-bold mb-2">Welcome back, {user?.name}!</h1>
           <p className="text-muted-foreground">Here's your trading overview</p>
         </div>

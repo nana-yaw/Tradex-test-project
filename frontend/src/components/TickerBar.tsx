@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 import { useMarketPrices, useMarketChart } from '@/hooks/useMarketPrices';
-import { LineChart, Line, ResponsiveContainer, YAxis } from 'recharts';
+import { AreaChart, Area, ResponsiveContainer, YAxis } from 'recharts';
 
 const SYMBOL_TO_COIN_ID: Record<string, string> = {
   BTC: 'bitcoin',
@@ -22,7 +22,7 @@ const TickerBar = () => {
 
   const handleMouseEnter = (symbol: string, e: React.MouseEvent) => {
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-    setPopupPosition({ x: rect.left, y: rect.bottom + 8 });
+    setPopupPosition({ x: rect.left, y: rect.top - 8 });
     setHoveredCoin(symbol);
   };
 
@@ -44,6 +44,10 @@ const TickerBar = () => {
     time: timestamp,
     price,
   }));
+
+  const hoveredItem = prices?.find((p) => p.symbol === hoveredCoin);
+  const high24h = chartPoints ? Math.max(...chartPoints.map((p: { price: number }) => p.price)) : null;
+  const low24h = chartPoints ? Math.min(...chartPoints.map((p: { price: number }) => p.price)) : null;
 
   // Duplicate items for seamless scroll loop
   const tickerItems = [...prices, ...prices];
@@ -82,28 +86,51 @@ const TickerBar = () => {
       </div>
 
       {/* Chart Popup */}
-      {hoveredCoin && chartPoints && chartPoints.length > 0 && (
+      {hoveredCoin && chartPoints && chartPoints.length > 0 && hoveredItem && (
         <div
-          className="fixed z-[100] bg-card border border-border rounded-lg shadow-xl p-4"
-          style={{ left: popupPosition.x, top: popupPosition.y, width: 280, height: 180 }}
+          className="fixed z-[100] bg-card border border-border rounded-xl shadow-xl p-5"
+          style={{ left: popupPosition.x, bottom: `calc(100vh - ${popupPosition.y}px)`, width: 340 }}
           onMouseEnter={() => setHoveredCoin(hoveredCoin)}
           onMouseLeave={handleMouseLeave}
         >
-          <div className="text-sm font-semibold mb-2">
-            {hoveredCoin} — 24h Chart
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-lg font-bold">{hoveredItem.name}</span>
+            <span className="text-lg font-bold">
+              ${hoveredItem.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 })}
+            </span>
+          </div>
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-sm text-muted-foreground">{hoveredCoin}/USD</span>
+            <span className={`flex items-center gap-1 text-sm font-medium ${hoveredItem.change24h >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+              {hoveredItem.change24h >= 0 ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
+              {hoveredItem.change24h >= 0 ? '+' : ''}{hoveredItem.change24h}% 24h
+            </span>
           </div>
           <ResponsiveContainer width="100%" height={120}>
-            <LineChart data={chartPoints}>
+            <AreaChart data={chartPoints}>
+              <defs>
+                <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor={hoveredItem.change24h >= 0 ? 'hsl(142, 76%, 36%)' : 'hsl(0, 84%, 60%)'} stopOpacity={0.3} />
+                  <stop offset="100%" stopColor={hoveredItem.change24h >= 0 ? 'hsl(142, 76%, 36%)' : 'hsl(0, 84%, 60%)'} stopOpacity={0} />
+                </linearGradient>
+              </defs>
               <YAxis domain={['auto', 'auto']} hide />
-              <Line
+              <Area
                 type="monotone"
                 dataKey="price"
-                stroke="hsl(142, 76%, 36%)"
+                stroke={hoveredItem.change24h >= 0 ? 'hsl(142, 76%, 36%)' : 'hsl(0, 84%, 60%)'}
                 strokeWidth={2}
+                fill="url(#chartGradient)"
                 dot={false}
               />
-            </LineChart>
+            </AreaChart>
           </ResponsiveContainer>
+          {high24h != null && low24h != null && (
+            <div className="flex justify-between mt-3 text-xs text-muted-foreground">
+              <span>24h Low: ${low24h.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+              <span>24h High: ${high24h.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+            </div>
+          )}
         </div>
       )}
     </>

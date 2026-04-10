@@ -8,7 +8,7 @@ const COIN_MAP = {
 
 function transformPrices(rawResponse) {
   return Object.entries(COIN_MAP)
-    .filter(([coinId]) => rawResponse[coinId])
+    .filter(([coinId]) => rawResponse[coinId]?.usd != null)
     .map(([coinId, meta]) => ({
       symbol: meta.symbol,
       name: meta.name,
